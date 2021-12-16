@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Signup extends StatefulWidget {
@@ -9,12 +10,12 @@ class Signup extends StatefulWidget {
 
 class _SignupState extends State<Signup> {
   late String? _username;
-  late String? _password;
   late String? _email;
-  late String? _annee;
+  late String? _pwd;
+  late String? _birth;
   late String? _address;
 
-  final GlobalKey<FormState> formKey = new GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -23,32 +24,30 @@ class _SignupState extends State<Signup> {
         title: const Text("Inscription"),
       ),
       body: Form(
-        key: formKey,
+        key: _formKey,
         child: ListView(
           children: [
             Container(
                 width: double.infinity,
                 margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                child: Image.asset("assets/images/minecraft.jpg",
-                    width: 460, height: 215)),
+                child: Image.asset("assets/images/minecraft.jpg", width: 460, height: 215)
+            ),
             Container(
               margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
               child: TextFormField(
                 decoration: const InputDecoration(
                     border: OutlineInputBorder(), labelText: "Username"),
-                validator: (String? value) {
-                  if (value!.isEmpty) {
-                    return "Username is required!";
-                  }
-                  return null;
-                },
                 onSaved: (String? value) {
                   _username = value;
                 },
-                // onChanged: (String? value) {
-                //   _username = value!;
-                //   print(_username!);
-                // },
+                validator: (String? value) {
+                  if(value!.isEmpty || value.length < 5) {
+                    return "Le Username doit avoir au moins 5 caractères !";
+                  }
+                  else {
+                    return null;
+                  }
+                },
               ),
             ),
             Container(
@@ -57,19 +56,17 @@ class _SignupState extends State<Signup> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
                     border: OutlineInputBorder(), labelText: "Email"),
-                validator: (String? value) {
-                  if (value!.isEmpty) {
-                    return "Email is required!";
-                  }
-                  if (!RegExp(
-                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                      .hasMatch(value)) {
-                    return "Please provide correct email!";
-                  }
-                  return null;
-                },
                 onSaved: (String? value) {
                   _email = value;
+                },
+                validator: (String? value) {
+                  RegExp regex = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+                  if(value!.isEmpty || !regex.hasMatch(value)) {
+                    return "L'adresse email n'est pas valide !";
+                  }
+                  else {
+                    return null;
+                  }
                 },
               ),
             ),
@@ -79,14 +76,16 @@ class _SignupState extends State<Signup> {
                 obscureText: true,
                 decoration: const InputDecoration(
                     border: OutlineInputBorder(), labelText: "Mot de passe"),
-                validator: (String? value) {
-                  if (value!.isEmpty) {
-                    return "Password is required!";
-                  }
-                  return null;
-                },
                 onSaved: (String? value) {
-                  _password = value;
+                  _pwd = value;
+                },
+                validator: (String? value) {
+                  if(value!.isEmpty || value.length < 5) {
+                    return "Le mot de passe doit avoir au moins 5 caractères !";
+                  }
+                  else {
+                    return null;
+                  }
                 },
               ),
             ),
@@ -95,36 +94,37 @@ class _SignupState extends State<Signup> {
               child: TextFormField(
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Année de naissance"),
-                validator: (String? value) {
-                  if (value!.isEmpty) {
-                    return "Birth Year is required!";
-                  }
-                  return null;
-                },
+                    border: OutlineInputBorder(), labelText: "Année de naissance"),
                 onSaved: (String? value) {
-                  _annee = value;
+                  _birth = value;
+                },
+                validator: (String? value) {
+                  if(value!.isEmpty || int.parse(value) > 2021) {
+                    return "L'année de naissance est invalide !";
+                  }
+                  else {
+                    return null;
+                  }
                 },
               ),
             ),
             Container(
               margin: const EdgeInsets.fromLTRB(10, 0, 10, 20),
               child: TextFormField(
-                keyboardType: TextInputType.multiline,
-                maxLines: 3,
+                maxLines: 4,
                 decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: "Adresse de facturation"),
-                validator: (String? value) {
-                  if (value!.isEmpty) {
-                    return "Billing address is required!";
-                  }
-                  return null;
-                },
+                    border: OutlineInputBorder(), labelText: "Adresse de facturation"),
                 onSaved: (String? value) {
                   _address = value;
                 },
+                validator: (String? value) {
+                  if(value!.isEmpty || value.length < 20) {
+                    return "L'adresse doit avoir au moins 20 caractères !";
+                  }
+                  else {
+                    return null;
+                  }
+                  },
               ),
             ),
             Row(
@@ -133,40 +133,24 @@ class _SignupState extends State<Signup> {
                 ElevatedButton(
                   child: const Text("S'inscrire"),
                   onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      formKey.currentState!.save();
+                    if(_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+
+                      String message = "Username : " + _username!
+                      + "\n" + "Email : " + _email!
+                      + "\n" + "Mot de passe : " + _pwd!
+                      + "\n" + "Année de naissance : " + _birth!
+                      + "\n" + "Adresse de facturation : " + _address!;
+
                       showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text("UserInfo"),
-                              content: Text("Email is: " +
-                                  _email! +
-                                  "\nUsername is: " +
-                                  _username! +
-                                  "\nPassword is: " +
-                                  _password! +
-                                  "\nBirth Year is: " +
-                                  _annee! +
-                                  "\nBilling Address is: " +
-                                  _address!),
-                              actions: [
-                                ElevatedButton(
-                                  onPressed: () {},
-                                  child: const Text(
-                                    "Cancel",
-                                  ),
-                                  style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                              Colors.red)),
-                                ),
-                                ElevatedButton(
-                                    onPressed: () {},
-                                    child: const Text("Confirm")),
-                              ],
-                            );
-                          });
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("Informations"),
+                            content: Text(message),
+                          );
+                        },
+                      );
                     }
                   },
                 ),
@@ -176,7 +160,8 @@ class _SignupState extends State<Signup> {
                 ElevatedButton(
                   child: const Text("Annuler"),
                   onPressed: () {
-                    formKey.currentState!.reset();
+                    _formKey.currentState!.reset();
+                    Navigator.pushReplacementNamed(context, "/");
                   },
                 )
               ],
